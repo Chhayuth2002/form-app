@@ -6,33 +6,11 @@ import { Table } from "./components/Table";
 import uuid from "react-uuid";
 
 function App() {
-  const [date, setData] = useState([]);
+  const [data, setData] = useState([]);
 
   const [provinces, setProvince] = useState([]);
   const [districts, setDistrict] = useState([]);
   const [communes, setCommune] = useState([]);
-
-  const [tempData, setTempData] = useState({
-    id: "",
-    latin: "",
-    khmer: "",
-    districts: [
-      {
-        id: "",
-        latin: "",
-        khmer: "",
-        province_id: "",
-        communes: [
-          {
-            id: "",
-            latin: "",
-            khmer: "",
-            province_id: "",
-          },
-        ],
-      },
-    ],
-  });
 
   const onSaveProvince = (params) => {
     const newProvince = {
@@ -41,7 +19,7 @@ function App() {
     };
 
     setProvince([...provinces, newProvince]);
-    setTempData(newProvince);
+    // setTempData(newProvince);
   };
 
   const onSaveDistrict = (params) => {
@@ -51,14 +29,6 @@ function App() {
     };
 
     setDistrict([...districts, newDistrict]);
-
-    // const findPro = provinces.find((pro) => {
-    //   if (pro.id === tempData.id) {
-    //     setTempData({ ...pro });
-    //   }
-    // });
-
-    // setTempData(findPro);
   };
 
   // console.log(provinces);
@@ -71,17 +41,21 @@ function App() {
     setCommune([...communes, newCommune]);
   };
 
-  console.log("province", provinces);
-  console.log("district", districts);
-  console.log("commune", communes);
+  // console.log("province", provinces);
+  // console.log("district", districts);
+  // console.log("commune", communes);
 
   return (
-    <div className=" min-h-full bg-slate-200">
+    <div className="max-h-screen bg-slate-200">
       <div className="container mx-auto">
         <ProvinceForm onSave={onSaveProvince} />
         <DistrictForm provinces={provinces} onSave={onSaveDistrict} />
         <CommuneForm onSave={onSaveCommune} districts={districts} />
-        <Table />
+        <Table
+          provinces={provinces}
+          districts={districts}
+          communes={communes}
+        />
       </div>
     </div>
   );

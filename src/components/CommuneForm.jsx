@@ -18,13 +18,13 @@ export const CommuneForm = ({ onSave, districts }) => {
   };
 
   return (
-    <div className="flex items-center justify-center ">
-      <div className="flex flex-col pb-10">
-        <h1 className=" text-neutral-600 text-center text-3xl font-bold">
+    <div className="flex items-center justify-center border-b-2 border-neutral-300">
+      <div className="flex flex-col mt-10">
+        <h1 className=" text-neutral-600 text-center text-3xl font-bold pb-2">
           Commune Form
         </h1>
         <div className="py-2 flex items-center justify-center">
-          <div className="flex-row">
+          <div className="flex flex-row gap-2">
             <TextIinput
               onChange={handleFormChange}
               label="Latin"
@@ -45,7 +45,7 @@ export const CommuneForm = ({ onSave, districts }) => {
               placeHolder="Choose a districts"
             />
           </div>
-          <div className="mt-4 ml-3">
+          <div className="ml-3">
             <Button className="mr-2" onClick={onClickSave}>
               Save
             </Button>
