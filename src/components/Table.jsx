@@ -1,71 +1,61 @@
-import { useMemo } from "react";
-
-export const Table = ({ provinces, districts, communes }) => {
-  const data = useMemo(
-    () =>
-      provinces.map((pro) => {
-        const totalDis = districts.filter((dis) => dis.province_id === pro.id);
-        const totalCom = communes.filter((com) =>
-          totalDis.find((dis) => dis.id === com.district_id)
-        );
-
-        return {
-          ...pro,
-          total_districts: totalDis.length,
-          total_communes: totalCom.length,
-        };
-      }),
-    [provinces, districts, communes]
-  );
-
-  // console.log("data: ", data);
-
+export const Table = ({ data, onDelete, selectedProvince }) => {
   return (
-    <div className="relative overflow-x-auto">
-      <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-        <thead className="text-xs  uppercase bg-gray-50 dark:text-gray-400">
-          <tr>
-            <th scope="col" className="px-6 py-3">
-              Id
-            </th>
-            <th scope="col" className="px-6 py-3">
-              Name
-            </th>
-            <th scope="col" className="px-6 py-3">
-              Total Districts
-            </th>
-            <th scope="col" className="px-6 py-3">
-              Total Communes
-            </th>
-            <th scope="col" className="px-6 py-3">
-              Actions
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((d) => (
-            <tr key={d.id} className="bg-white border-b  text-xl">
-              <th className="px-6 py-4 font-medium  whitespace-nowrap">
-                {d.id}
-              </th>
-              <td className="px-6 py-4">
-                {d.latin}/{d.khmer}
-              </td>
-              <td className="px-6 py-4">{d.total_districts}</td>
-              <td className="px-6 py-4">{d.total_communes}</td>
-              <td className="px-6 py-4">
-                <button className="mr-2 hover:underline text-blue-300">
-                  Edit
-                </button>
-                /
-                <button className="ml-2 hover:underline text-rose-500">
-                  Delete
-                </button>
-              </td>
+    <div className="flex justify-center my-5">
+      <div className="flex flex-col items-center justify-center w-full">
+        <h1 className=" text-neutral-600 text-center text-3xl font-bold pb-2">
+          Province list
+        </h1>
+        <table className="  w-full bg-white shadow-md rounded-xl overflow-scroll mb-10">
+          <thead>
+            <tr className="bg-blue-gray-100 text-gray-700">
+              <th className="py-3 px-4 text-left">Id </th>
+              <th className="py-3 px-4 text-left">Name</th>
+              <th className="py-3 px-4 text-left">Total Districts</th>
+              <th className="py-3 px-4 text-left">Total Communes</th>
+              <th className="py-3 px-4 text-left">Total Villages</th>
+              <th className="py-3 px-4 text-left">Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="text-blue-gray-900">
+            {data?.length ? (
+              <>
+                {data?.map((d) => (
+                  <tr key={d.id} className="border border-b">
+                    <td className="px-3 py-4 ">{d.id}</td>
+                    <td className="px-3 py-4">
+                      {d.latin} / {d.khmer}
+                    </td>
+                    <td className="px-3 py-4">{d.total_districts}</td>
+                    <td className="px-3 py-4">{d.total_communes}</td>
+                    <td className="px-3 py-4">{d.total_villages}</td>
+                    <td className="px-3 py-4">
+                      <button
+                        onClick={() => selectedProvince(d.id)}
+                        className="mr-2 hover:underline "
+                      >
+                        Edit
+                      </button>
+                      /
+                      <button
+                        onClick={() => onDelete(d.id)}
+                        className="ml-2 hover:underline text-rose-500"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </>
+            ) : (
+              <tr className="border border-b text-center text-5xl">
+                <td colSpan="5" className="py-4">
+                  No data
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

@@ -1,50 +1,59 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "./Button";
 import { TextIinput } from "./Input";
 
-export const ProvinceForm = ({ onSave }) => {
-  const [form, setForm] = useState({ latin: "", khmer: "" });
+export const ProvinceForm = ({ onSave, value = {}, onEdit, setValue }) => {
+  const [form, setForm] = useState({
+    latin: "",
+    khmer: "",
+  });
   const [error, setError] = useState({ latin: "", khmer: "" });
 
   const handleFormChange = (e) => {
     const name = e.target.name;
     const value = e.target.value;
 
-    console.log("Before State Update:", form);
-
     setForm({ ...form, [name]: value });
-    console.log("After State Update:", form);
+    setError({ ...error, [name]: "" });
   };
 
   const onClickSave = () => {
-    setError({}); // Reset errors
-
-    if (form.latin.trim() === "")
-      setError((prevErrors) => ({
-        ...prevErrors,
-        latin: "Latin name is required",
-      }));
-    if (form.khmer.trim() === "")
-      setError((prevErrors) => ({
-        ...prevErrors,
-        khmer: "Khmer name is required",
-      }));
+    if (!form.latin)
+      setError({ ...error, latin: (error.latin = "Latin name required") });
+    if (!form.khmer)
+      setError({ ...error, khmer: (error.khmer = "Khmer name required") });
 
     if (!error.khmer && !error.latin) {
       onSave(form);
       setForm({ latin: "", khmer: "" });
-      setError({ latin: "", khmer: "" });
     }
   };
 
+  const onClickUpdate = () => {
+    if (!form.latin)
+      setError({ ...error, latin: (error.latin = "Latin name required") });
+    if (!form.khmer)
+      setError({ ...error, khmer: (error.khmer = "Khmer name required") });
+
+    if (!error.khmer && !error.latin) {
+      onEdit({ ...form, id: value.id });
+      setForm({ latin: "", khmer: "" });
+      setValue({});
+    }
+  };
+
+  useEffect(() => {
+    setForm(value);
+  }, [value]);
+
   return (
-    <div className="flex items-center justify-center border-b-2 border-neutral-300">
-      <div className="flex flex-col mt-10">
+    <div className="flex border-b-2 items-center justify-center border-neutral-300">
+      <div className="flex flex-col mt-5">
         <h1 className=" text-neutral-600 text-center text-3xl font-bold mb-2">
           Province Form
         </h1>
         <div className="py-2 flex items-center justify-center">
-          <div className=" flex flex-row gap-2">
+          <div className="flex flex-row gap-2">
             <TextIinput
               onChange={handleFormChange}
               label="Latin"
@@ -59,12 +68,14 @@ export const ProvinceForm = ({ onSave }) => {
               value={form.khmer}
               error={error.khmer}
             />
-            <div className="mt-8">
-              <Button className="" onClick={onClickSave}>
-                Save
-              </Button>
-            </div>
           </div>
+        </div>
+        <div className="mb-2">
+          {!value.khmer ? (
+            <Button onClick={onClickSave}>Save</Button>
+          ) : (
+            <Button onClick={onClickUpdate}>Update</Button>
+          )}
         </div>
       </div>
     </div>

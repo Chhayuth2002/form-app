@@ -1,16 +1,51 @@
-import { useState } from "react";
-import { CommuneForm } from "./components/CommuneForm";
-import { DistrictForm } from "./components/DistrictForm";
+import { useEffect, useState } from "react";
 import { ProvinceForm } from "./components/ProvinceForm";
+import { DistrictForm } from "./components/DistrictForm";
+import { CommuneForm } from "./components/CommuneForm";
+import { VillageForm } from "./components/VillageForm";
 import { Table } from "./components/Table";
+import provincesData from "./data/provinces";
+
 import uuid from "react-uuid";
 
 function App() {
   const [data, setData] = useState([]);
-
-  const [provinces, setProvince] = useState([]);
+  const [provinces, setProvince] = useState(provincesData);
   const [districts, setDistrict] = useState([]);
   const [communes, setCommune] = useState([]);
+  const [villages, setVillage] = useState([]);
+
+  const [selected, setSelected] = useState({});
+
+  useEffect(() => {
+    const result = provinces.map((pro) => {
+      const totalDistricts = districts.filter(
+        (dis) => dis.province_id === pro.id
+      );
+
+      const totalCommunes = communes.filter((com) =>
+        totalDistricts.find((dis) => dis.id === com.district_id)
+      );
+
+      const totalVillage = villages.filter((vil) =>
+        totalCommunes.find((com) => com.id === vil.commune_id)
+      );
+
+      return {
+        ...pro,
+        total_districts: totalDistricts.length,
+        total_communes: totalCommunes.length,
+        total_villages: totalVillage.length,
+      };
+    });
+
+    setData(result);
+  }, [provinces, districts, communes, villages]);
+
+  // console.log("Province: ", provinces);
+  // console.log("District: ", districts);
+  // console.log("Commune: ", communes);
+  // console.log("Village: ", villages);
 
   const onSaveProvince = (params) => {
     const newProvince = {
@@ -18,8 +53,36 @@ function App() {
       ...params,
     };
 
-    setProvince([...provinces, newProvince]);
-    // setTempData(newProvince);
+    setProvince(provinces.concat(newProvince));
+  };
+
+  const onDelete = (id) => {
+    const districtToDelete = districts.filter((dis) => dis.province_id === id);
+    const communeToDelete = communes.filter((com) =>
+      districtToDelete.some((dis) => dis.id === com.district_id)
+    );
+    const villageToDelete = villages.fill((vil) =>
+      communeToDelete.some((com) => com.id === vil.commune_id)
+    );
+
+    setProvince(provinces.filter((pro) => pro.id !== id));
+    setDistrict(districts.filter((dis) => !districtToDelete.includes(dis)));
+    setCommune(communes.filter((com) => !communeToDelete.includes(com)));
+    setVillage(villages.filter((vil) => !villageToDelete.includes(vil)));
+  };
+
+  const onEdit = (params) => {
+    const updateProvince = provinces.map((pro) =>
+      pro.id === params.id ? { ...pro, ...params } : pro
+    );
+
+    setProvince(updateProvince);
+  };
+
+  const selectedProvince = (id) => {
+    const findProvince = provinces.find((pro) => pro.id === id);
+
+    setSelected(findProvince);
   };
 
   const onSaveDistrict = (params) => {
@@ -28,33 +91,53 @@ function App() {
       ...params,
     };
 
-    setDistrict([...districts, newDistrict]);
+    setDistrict(districts.concat(newDistrict));
   };
 
-  // console.log(provinces);
   const onSaveCommune = (params) => {
     const newCommune = {
       id: uuid(),
       ...params,
     };
 
-    setCommune([...communes, newCommune]);
+    setCommune(communes.concat(newCommune));
   };
 
-  // console.log("province", provinces);
-  // console.log("district", districts);
-  // console.log("commune", communes);
+  const onSaveVillage = (params) => {
+    const newVillage = {
+      id: uuid(),
+      ...params,
+    };
+
+    setVillage(villages.concat(newVillage));
+  };
 
   return (
-    <div className="max-h-screen bg-slate-200">
+    <div className="max-h-screen">
       <div className="container mx-auto">
-        <ProvinceForm onSave={onSaveProvince} />
-        <DistrictForm provinces={provinces} onSave={onSaveDistrict} />
-        <CommuneForm onSave={onSaveCommune} districts={districts} />
+        <ProvinceForm
+          onSave={onSaveProvince}
+          onEdit={onEdit}
+          value={selected}
+          setValue={setSelected}
+        />
+        <DistrictForm provincesData={provinces} onSave={onSaveDistrict} />
+        <CommuneForm
+          provincesData={provinces}
+          districtData={districts}
+          onSave={onSaveCommune}
+        />
+        <VillageForm
+          provincesData={provinces}
+          districtsData={districts}
+          communesData={communes}
+          onSave={onSaveVillage}
+        />
         <Table
-          provinces={provinces}
-          districts={districts}
-          communes={communes}
+          selectedProvince={selectedProvince}
+          onDelete={onDelete}
+          data={data}
+          selected={selected}
         />
       </div>
     </div>
