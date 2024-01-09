@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "./Button";
 import { Dropdown, TextIinput } from "./Input";
 
@@ -7,9 +7,24 @@ export const VillageForm = ({
   provincesData,
   communesData,
   districtsData,
+  value,
+  setValue,
+  onEdit,
 }) => {
-  const [form, setForm] = useState({ latin: "", khmer: "", commune_id: "" });
-  const [error, setError] = useState({ latin: "", khmer: "", commune_id: "" });
+  const [form, setForm] = useState({
+    latin: value?.latin || "",
+    khmer: value?.khmer || "",
+    commune_id: value?.commune_id || "",
+    district_id: value?.district_id || "",
+    province_id: value?.province_id || "",
+  });
+  const [error, setError] = useState({
+    latin: "",
+    khmer: "",
+    commune_id: "",
+    district_id: "",
+    province_id: "",
+  });
 
   const [provinces, setProvince] = useState([]);
   const [communes, setCommune] = useState([]);
@@ -27,40 +42,78 @@ export const VillageForm = ({
     setForm({ ...form, [name]: value });
     setError({ ...error, [name]: "" });
 
-    if (name === "province_id")
+    if (name === "province_id") {
+      updateDropdown;
       setSelectedItem({ ...selectItem, province_id: value });
-    if (name === "district_id")
+    }
+    if (name === "district_id") {
       setSelectedItem({ ...selectItem, district_id: value });
+      updateDropdown;
+    }
   };
 
-  const onClickSave = () => {
+  const handleClick = () => {
     const checkError = {
       latin: !form.latin ? "Latin name is required" : "",
       khmer: !form.khmer ? "Khmer name is required" : "",
-      commune_id: !form.commune_id ? "District is required" : "",
+      commune_id: !form.commune_id ? "Commune is required" : "",
+      district_id: !form.district_id ? "District is required" : "",
+      province_id: !form.province_id ? "Province is required" : "",
     };
 
     setError(checkError);
 
-    if (!error.latin && !error.khmer && !error.commune_id) {
-      onSave(form);
-      setForm({ latin: "", khmer: "", commune_id: form.commune_id });
+    if (!checkError.khmer && !checkError.latin && !checkError.commune_id) {
+      if (form.id) {
+        onEdit("villages", form);
+        setValue({});
+      } else {
+        onSave("villages", form);
+      }
+      setForm({
+        latin: "",
+        khmer: "",
+        commune_id: form.commune_id,
+      });
     }
   };
 
-  useEffect(() => {
-    const filterDistrict = districtsData.filter(
-      (dis) => dis.province_id === selectItem.province_id
-    );
+  const onClear = () => {
+    setForm({
+      latin: "",
+      khmer: "",
+      commune_id: "",
+      province_id: "",
+      district_id: "",
+    });
+    setValue({});
+  };
 
-    const filterCommune = communesData.filter(
-      (com) => com.district_id === selectItem.district_id
-    );
-
+  const updateDropdown = useMemo(() => {
     setProvince(provincesData);
-    setDistrict(filterDistrict);
-    setCommune(filterCommune);
+    setDistrict(
+      districtsData.filter((dis) => dis.province_id === selectItem.province_id)
+    );
+    setCommune(
+      communesData.filter((com) => com.district_id === selectItem.district_id)
+    );
   }, [provincesData, districtsData, communesData, selectItem]);
+
+  useEffect(() => {
+    setProvince(provincesData);
+    if (value.id) {
+      setDistrict(
+        districtsData.filter((dis) => dis.province_id === value.province_id)
+      );
+
+      setCommune(
+        communesData.filter((com) => com.district_id === value.district_id)
+      );
+
+      setForm(value);
+      setValue({});
+    }
+  }, [provincesData, districtsData, communesData, setValue, value]);
 
   return (
     <div className="flex items-center justify-center border-b-2 border-neutral-300">
@@ -91,6 +144,7 @@ export const VillageForm = ({
             label="Provinces"
             data={provinces}
             name="province_id"
+            value={form.province_id}
             onChange={handleFormChange}
             placeHolder="Choose a province"
           />
@@ -98,6 +152,7 @@ export const VillageForm = ({
             label="Districts"
             data={districts}
             name="district_id"
+            value={form.district_id}
             onChange={handleFormChange}
             placeHolder="Choose a district"
           />
@@ -105,13 +160,15 @@ export const VillageForm = ({
             label="communes"
             data={communes}
             name="commune_id"
+            value={form.commune_id}
             onChange={handleFormChange}
             placeHolder="Choose a communes"
             error={error.commune_id}
           />
-          <Button className="mr-2" onClick={onClickSave}>
-            Save
+          <Button className="mr-2" onClick={handleClick}>
+            {value.id ? "Update" : "Save"}
           </Button>
+          <Button onClick={onClear}>Clear</Button>
         </div>
       </div>
     </div>

@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 import { Button } from "./Button";
 import { TextIinput } from "./Input";
 
-export const ProvinceForm = ({ onSave, value = {}, onEdit, setValue }) => {
+export const ProvinceForm = ({ onSave, onEdit, value = {}, setValue }) => {
   const [form, setForm] = useState({
-    latin: "",
-    khmer: "",
+    latin: value?.latin || "",
+    khmer: value?.khmer || "",
   });
   const [error, setError] = useState({ latin: "", khmer: "" });
 
@@ -17,29 +17,29 @@ export const ProvinceForm = ({ onSave, value = {}, onEdit, setValue }) => {
     setError({ ...error, [name]: "" });
   };
 
-  const onClickSave = () => {
-    if (!form.latin)
-      setError({ ...error, latin: (error.latin = "Latin name required") });
-    if (!form.khmer)
-      setError({ ...error, khmer: (error.khmer = "Khmer name required") });
+  const handleClick = () => {
+    const checkError = {
+      latin: !form.latin ? "Latin name is required" : "",
+      khmer: !form.khmer ? "Khmer name is required" : "",
+    };
 
-    if (!error.khmer && !error.latin) {
-      onSave(form);
+    setError(checkError);
+
+    if (!checkError.latin && !checkError.khmer) {
+      if (value.id) {
+        onEdit("provinces", form);
+        setValue({});
+      } else {
+        onSave("provinces", form);
+      }
+
       setForm({ latin: "", khmer: "" });
     }
   };
 
-  const onClickUpdate = () => {
-    if (!form.latin)
-      setError({ ...error, latin: (error.latin = "Latin name required") });
-    if (!form.khmer)
-      setError({ ...error, khmer: (error.khmer = "Khmer name required") });
-
-    if (!error.khmer && !error.latin) {
-      onEdit({ ...form, id: value.id });
-      setForm({ latin: "", khmer: "" });
-      setValue({});
-    }
+  const onClear = () => {
+    setForm({ latin: "", khmer: "" });
+    setValue({});
   };
 
   useEffect(() => {
@@ -71,11 +71,10 @@ export const ProvinceForm = ({ onSave, value = {}, onEdit, setValue }) => {
           </div>
         </div>
         <div className="mb-2">
-          {!value.khmer ? (
-            <Button onClick={onClickSave}>Save</Button>
-          ) : (
-            <Button onClick={onClickUpdate}>Update</Button>
-          )}
+          <Button className="mr-2" onClick={handleClick}>
+            {!value.id ? "Save" : "Update"}
+          </Button>
+          <Button onClick={onClear}>Clear</Button>
         </div>
       </div>
     </div>

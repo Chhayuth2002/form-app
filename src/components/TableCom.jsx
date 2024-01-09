@@ -1,20 +1,18 @@
-import { Edit, Trash, View } from "lucide-react";
+import { Edit, Trash } from "lucide-react";
 
-export const Table = ({ data, onDelete, selectedItem, setIsViewing }) => {
+export const TableCom = ({ data, onDelete, selectedItem, title, entity }) => {
   return (
-    <div className="flex justify-center my-5 border-b-2">
+    <div className="flex justify-center my-5  border-b-2">
       <div className="flex flex-col items-center justify-center w-full">
         <h1 className=" text-neutral-600 text-center text-3xl font-bold pb-2">
-          Province list
+          {title}
         </h1>
         <table className="  w-full bg-white shadow-md rounded-xl overflow-scroll mb-10">
           <thead>
             <tr className="bg-blue-gray-100 text-gray-700">
               <th className="py-3 px-4 text-left">Id </th>
-              <th className="py-3 px-4 text-left">Name</th>
-              <th className="py-3 px-4 text-left">Total Districts</th>
-              <th className="py-3 px-4 text-left">Total Communes</th>
-              <th className="py-3 px-4 text-left">Total Villages</th>
+              <th className="py-3 px-4 text-left">Khmer</th>
+              <th className="py-3 px-4 text-left">Latin</th>
               <th className="py-3 px-4 text-left w-40">Actions</th>
             </tr>
           </thead>
@@ -24,28 +22,18 @@ export const Table = ({ data, onDelete, selectedItem, setIsViewing }) => {
                 {data?.map((d) => (
                   <tr key={d.id} className="border border-b">
                     <td className="px-3 py-4 ">{d.id}</td>
-                    <td className="px-3 py-4">
-                      {d.latin} / {d.khmer}
-                    </td>
-                    <td className="px-3 py-4">{d.total_districts}</td>
-                    <td className="px-3 py-4">{d.total_communes}</td>
-                    <td className="px-3 py-4">{d.total_villages}</td>
+                    <td className="px-3 py-4">{d.khmer}</td>
+                    <td className="px-3 py-4">{d.latin}</td>
                     <td className="px-3 py-4">
                       <button
-                        onClick={() => setIsViewing(true)}
-                        className="mr-2 hover:underline "
-                      >
-                        <View />
-                      </button>
-                      <button
-                        onClick={() => selectedItem(d.id, "provinces")}
+                        onClick={() => selectedItem(d.id, entity)}
                         className="mx-2 hover:underline "
                       >
                         <Edit />
                       </button>
 
                       <button
-                        onClick={() => onDelete(d.id, "provinces")}
+                        onClick={() => onDelete(d.id, entity)}
                         className="ml-2 hover:underline text-rose-500"
                       >
                         <Trash />

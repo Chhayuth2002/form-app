@@ -2,8 +2,18 @@ import { useEffect, useState } from "react";
 import { Button } from "./Button";
 import { Dropdown, TextIinput } from "./Input";
 
-export const DistrictForm = ({ provincesData, onSave }) => {
-  const [form, setForm] = useState({ latin: "", khmer: "", province_id: "" });
+export const DistrictForm = ({
+  provincesData,
+  onSave,
+  value,
+  setValue,
+  onEdit,
+}) => {
+  const [form, setForm] = useState({
+    latin: value?.latin || "",
+    khmer: value?.khmer || "",
+    province_id: value?.province_id || "",
+  });
   const [error, setError] = useState({ latin: "", khmer: "", province_id: "" });
   const [isDisable, setIsDisable] = useState(false);
   const [provinces, setProvince] = useState([]);
@@ -16,25 +26,40 @@ export const DistrictForm = ({ provincesData, onSave }) => {
     setError({ ...error, [name]: "" });
   };
 
-  const onClickSave = () => {
-    const errors = {
+  const handleClick = () => {
+    const checkError = {
       province_id: !form.province_id ? "Province is required" : "",
       latin: !form.latin ? "Latin name is required" : "",
       khmer: !form.khmer ? "Khmer name is required" : "",
     };
 
-    setError(errors);
+    setError(checkError);
 
-    if (!error.latin && !error.khmer && !error.province_id) {
-      onSave(form);
-      setForm({ latin: "", khmer: "", province_id: form.province_id });
+    if (!checkError.khmer && !checkError.latin && !checkError.province_id) {
+      if (value.id) {
+        onEdit("districts", form);
+        setValue({});
+      } else {
+        onSave("districts", form);
+      }
+      setForm({
+        latin: "",
+        khmer: "",
+        province_id: form.province_id,
+      });
     }
+  };
+
+  const onClear = () => {
+    setForm({ latin: "", khmer: "", province_id: "" });
+    setValue({});
   };
 
   useEffect(() => {
     setIsDisable(provinces.length ? false : true);
     setProvince(provincesData);
-  }, [provinces, provincesData]);
+    setForm(value);
+  }, [provinces, provincesData, value]);
 
   return (
     <div className="flex border-b-2 items-center justify-center border-neutral-300">
@@ -67,11 +92,13 @@ export const DistrictForm = ({ provincesData, onSave }) => {
             error={error.province_id}
             name="province_id"
             onChange={handleFormChange}
+            value={form.province_id}
             placeHolder="Choose a province"
           />
-          <Button isDisable={isDisable} onClick={onClickSave}>
-            Save
+          <Button className="mr-2" isDisable={isDisable} onClick={handleClick}>
+            {value.id ? "Update" : "Save"}
           </Button>
+          <Button onClick={onClear}>Clear</Button>
         </div>
       </div>
     </div>

@@ -1,13 +1,32 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "./Button";
 import { Dropdown, TextIinput } from "./Input";
 
-export const CommuneForm = ({ onSave, districtData, provincesData }) => {
-  const [form, setForm] = useState({ latin: "", khmer: "", district_id: "" });
-  const [error, setError] = useState({ latin: "", khmer: "", district_id: "" });
+export const CommuneForm = ({
+  onSave,
+  districtData,
+  provincesData,
+  value,
+  setValue,
+  onEdit,
+}) => {
+  const [form, setForm] = useState({
+    latin: value?.latin || "",
+    khmer: value?.khmer || "",
+    district_id: value?.district_id || "",
+    province_id: value?.province_id || "",
+  });
+  const [error, setError] = useState({
+    latin: "",
+    khmer: "",
+    district_id: "",
+  });
   const [provinces, setProvince] = useState([]);
   const [districts, setDistrict] = useState([]);
-  const [selectedItem, setSelectedItem] = useState("");
+  const [selectedItem, setSelectedItem] = useState({
+    province_id: "",
+    district_id: "",
+  });
 
   const handleFormChange = (e) => {
     const name = e.target.name;
@@ -17,11 +36,12 @@ export const CommuneForm = ({ onSave, districtData, provincesData }) => {
     setError({ ...error, [name]: "" });
 
     if (name === "province_id") {
-      setSelectedItem(value);
+      setSelectedItem({ ...selectedItem, province_id: value });
+      updateDropdown;
     }
   };
 
-  const onClickSave = () => {
+  const handleClick = () => {
     const checkError = {
       latin: !form.latin ? "Latin name is required" : "",
       khmer: !form.khmer ? "Khmer name is required" : "",
@@ -30,16 +50,43 @@ export const CommuneForm = ({ onSave, districtData, provincesData }) => {
 
     setError(checkError);
 
-    if (!error.latin && !error.khmer && !error.district_id) {
-      onSave(form);
-      setForm({ latin: "", khmer: "", district_id: form.district_id });
+    if (!checkError.khmer && !checkError.latin && !checkError.district_id) {
+      if (form.id) {
+        onEdit("communes", form);
+        setValue({});
+      } else {
+        onSave("communes", form);
+      }
+      setForm({
+        latin: "",
+        khmer: "",
+        district_id: form.district_id,
+      });
     }
   };
 
+  const onClear = () => {
+    setForm({ latin: "", khmer: "", district_id: "", province_id: "" });
+    setValue({});
+  };
+
+  const updateDropdown = useMemo(() => {
+    setProvince(provincesData);
+    setDistrict(
+      districtData.filter((dis) => dis.province_id === selectedItem.province_id)
+    );
+  }, [districtData, selectedItem, provincesData]);
+
   useEffect(() => {
     setProvince(provincesData);
-    setDistrict(districtData.filter((dis) => dis.province_id === selectedItem));
-  }, [provincesData, districtData, selectedItem]);
+    if (value.id) {
+      setDistrict(
+        districtData.filter((dis) => dis.province_id === value.province_id)
+      );
+      setForm(value);
+      setValue({});
+    }
+  }, [provincesData, districtData, value, setValue]);
 
   return (
     <div className="flex items-center justify-center border-b-2 border-neutral-300">
@@ -71,12 +118,14 @@ export const CommuneForm = ({ onSave, districtData, provincesData }) => {
             data={provinces}
             name="province_id"
             onChange={handleFormChange}
+            value={form.province_id}
             placeHolder="Choose a province"
             error={error.province_id}
           />
           <Dropdown
             label="Districts"
             data={districts}
+            value={form.district_id}
             name="district_id"
             onChange={handleFormChange}
             placeHolder="Choose a district"
@@ -84,9 +133,10 @@ export const CommuneForm = ({ onSave, districtData, provincesData }) => {
           />
         </div>
         <div className="mb-2">
-          <Button className="mr-2" onClick={onClickSave}>
-            Save
+          <Button className="mr-2" onClick={handleClick}>
+            {form.id ? "Update" : "Save"}
           </Button>
+          <Button onClick={onClear}>Clear</Button>
         </div>
       </div>
     </div>
