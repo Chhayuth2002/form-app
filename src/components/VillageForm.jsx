@@ -116,7 +116,7 @@ export const VillageForm = ({
   }, [provincesData, districtsData, communesData, setValue, value]);
 
   return (
-    <div className="flex items-center justify-center border-b-2 border-neutral-300">
+    <div className="flex items-center justify-center border-b-2 ">
       <div className="flex flex-col mt-5 ">
         <h1 className=" text-neutral-600 text-center text-3xl font-bold pb-2">
           Village Form
@@ -166,7 +166,7 @@ export const VillageForm = ({
             error={error.commune_id}
           />
           <Button className="mr-2" onClick={handleClick}>
-            {value.id ? "Update" : "Save"}
+            {form.id ? "Update" : "Save"}
           </Button>
           <Button onClick={onClear}>Clear</Button>
         </div>

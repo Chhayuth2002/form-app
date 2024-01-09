@@ -1,4 +1,4 @@
-const villages = [
+const villageData = [
   {
     id: "vil-1234",
     khmer: "ឈ្នៃ",
@@ -42,18 +42,4 @@ const villages = [
   },
 ];
 
-let i = 1;
-
-let villageData = [];
-
-const result = () => {
-  villageData = villages.map((com) => {
-    return {
-      ...com,
-      id: i++,
-    };
-  });
-};
-
-result();
 export default villageData;

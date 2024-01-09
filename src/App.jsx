@@ -25,8 +25,10 @@ function App() {
   const [selectedCommune, setSelectedCOmmune] = useState({});
   const [selectedVillage, setSelectedVillage] = useState({});
 
-  const [isViewing, setIsViewing] = useState(false);
+  const [isView, setIsView] = useState(false);
+  const [viewData, setViewData] = useState({});
 
+  // Update province list
   useMemo(() => {
     const result = provinces.map((pro) => {
       const totalDistricts = districts.filter(
@@ -53,8 +55,8 @@ function App() {
   }, [provinces, districts, communes, villages]);
 
   // Delete
-  const onDelete = (id, table) => {
-    if (table === "provinces") {
+  const onDelete = (id, entity) => {
+    if (entity === "provinces") {
       const districtToDelete = districts.filter(
         (dis) => dis.province_id === id
       );
@@ -70,7 +72,7 @@ function App() {
       setCommune(communes.filter((com) => !communeToDelete.includes(com)));
       setVillage(villages.filter((vil) => !villageToDelete.includes(vil)));
       //
-    } else if (table === "districts") {
+    } else if (entity === "districts") {
       //
       const communeToDelete = communes.filter((com) => com.district_id === id);
       const villageToDelete = villages.filter((vil) =>
@@ -80,12 +82,12 @@ function App() {
       setDistrict(districts.filter((dis) => dis.id !== id));
       setCommune(communes.filter((com) => !communeToDelete.includes(com)));
       setVillage(villages.filter((vil) => !villageToDelete.includes(vil)));
-    } else if (table === "communes") {
+    } else if (entity === "communes") {
       const villageToDelete = villages.filter((vil) => vil.commune_id === id);
 
       setCommune(communes.filter((com) => com.id !== id));
       setVillage(villages.filter((vil) => !villageToDelete.includes(vil)));
-    } else if (table === "villages") {
+    } else if (entity === "villages") {
       setVillage(villages.filter((vil) => vil.id !== id));
     }
   };
@@ -151,6 +153,7 @@ function App() {
     }
   };
 
+  // Selected item
   const seletectItem = (id, entity) => {
     if (entity === "provinces") {
       setSelectedProvince(provinces.find((pro) => pro.id === id));
@@ -198,55 +201,51 @@ function App() {
         district_id: findDistrict.id,
         province_id: findProvince,
       });
+    } else {
+      selectedProvince;
     }
   };
 
-  console.log(communes);
+  const selectedProvinceData = (id) => {
+    let data = {};
+    setIsView(true);
+    const foundProvince = provinces.find((pro) => pro.id === id);
+    if (foundProvince) {
+      const foundDistrict = districts
+        .filter((dis) => dis.province_id === foundProvince.id)
+        .map((dis) => {
+          const foundCommune = communes
+            .filter((com) => com.district_id === dis.id)
+            .map((com) => {
+              const foundVillage = villages.filter(
+                (vil) => vil.commune_id === com.id
+              );
 
-  // useMemo(() => {
-  //   let data = {};
-  //   const foundProvince = provinces.find((pro) => pro.id === selected.id);
-  //   if (foundProvince) {
-  //     const foundDistrict = districts
-  //       .filter((dis) => dis.province_id === foundProvince.id)
-  //       .map((dis) => {
-  //         const foundCommune = communes
-  //           .filter((com) => com.district_id === dis.id)
-  //           .map((com) => {
-  //             const foundVillage = villages.filter(
-  //               (vil) => vil.commune_id === com.id
-  //             );
+              return {
+                ...com,
+                villages: foundVillage,
+              };
+            });
 
-  //             return {
-  //               ...com,
-  //               villages: foundVillage,
-  //             };
-  //           });
+          return {
+            ...dis,
+            communes: foundCommune,
+          };
+        });
 
-  //         return {
-  //           ...dis,
-  //           communes: foundCommune,
-  //         };
-  //       });
+      data = {
+        ...foundProvince,
+        districts: foundDistrict,
+      };
 
-  //     data = {
-  //       ...foundProvince,
-  //       districts: foundDistrict,
-  //     };
-
-  //     setEditData(data);
-  //   }
-  // }, [selected, provinces, districts, communes, villages]);
-
-  // console.log("Province: ", provinces);
-  // console.log("District: ", districts);
-  // console.log("Commune: ", communes);
-  // console.log("Village: ", villages);
+      setViewData(data);
+    }
+  };
 
   return (
-    <div className="max-h-screen">
-      <div className="container mx-auto flex flex-row">
-        <div className="mr-10">
+    <div className=" bg-slate-300">
+      <div className="container mx-auto w-[1500px] flex flex-row">
+        <div className="mr-10 pr-5 border-r-2">
           <ProvinceForm
             setValue={setSelectedProvince}
             value={selectedProvince}
@@ -283,7 +282,7 @@ function App() {
             selectedItem={seletectItem}
             onDelete={onDelete}
             data={data}
-            setIsViewing={setIsViewing}
+            selectedProvinceData={selectedProvinceData}
           />
           <TableCom
             data={districts}
@@ -308,7 +307,7 @@ function App() {
           />
         </div>
 
-        {isViewing && <ViewDetail data={data} setIsViewing={setIsViewing} />}
+        {isView && <ViewDetail data={viewData} setIsView={setIsView} />}
       </div>
     </div>
   );

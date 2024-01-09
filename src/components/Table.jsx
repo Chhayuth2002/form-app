@@ -1,13 +1,18 @@
 import { Edit, Trash, View } from "lucide-react";
 
-export const Table = ({ data, onDelete, selectedItem, setIsViewing }) => {
+export const Table = ({
+  data,
+  onDelete,
+  selectedItem,
+  selectedProvinceData,
+}) => {
   return (
     <div className="flex justify-center my-5 border-b-2">
       <div className="flex flex-col items-center justify-center w-full">
         <h1 className=" text-neutral-600 text-center text-3xl font-bold pb-2">
           Province list
         </h1>
-        <table className="  w-full bg-white shadow-md rounded-xl overflow-scroll mb-10">
+        <table className=" w-full bg-white shadow-md rounded-xl overflow-scroll mb-10">
           <thead>
             <tr className="bg-blue-gray-100 text-gray-700">
               <th className="py-3 px-4 text-left">Id </th>
@@ -32,7 +37,7 @@ export const Table = ({ data, onDelete, selectedItem, setIsViewing }) => {
                     <td className="px-3 py-4">{d.total_villages}</td>
                     <td className="px-3 py-4">
                       <button
-                        onClick={() => setIsViewing(true)}
+                        onClick={() => selectedProvinceData(d.id)}
                         className="mr-2 hover:underline "
                       >
                         <View />

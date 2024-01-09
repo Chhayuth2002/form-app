@@ -89,7 +89,7 @@ export const CommuneForm = ({
   }, [provincesData, districtData, value, setValue]);
 
   return (
-    <div className="flex items-center justify-center border-b-2 border-neutral-300">
+    <div className="flex items-center justify-center border-b-2 ">
       <div className="flex flex-col mt-5 ">
         <h1 className=" text-neutral-600 text-center text-3xl font-bold pb-2">
           Commune Form

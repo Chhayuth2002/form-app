@@ -62,7 +62,7 @@ export const DistrictForm = ({
   }, [provinces, provincesData, value]);
 
   return (
-    <div className="flex border-b-2 items-center justify-center border-neutral-300">
+    <div className="flex border-b-2 items-center justify-center ">
       <div className="flex flex-col mt-5">
         <h1 className=" text-neutral-600 text-center text-3xl font-bold mb-2">
           District Form

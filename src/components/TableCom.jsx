@@ -2,7 +2,7 @@ import { Edit, Trash } from "lucide-react";
 
 export const TableCom = ({ data, onDelete, selectedItem, title, entity }) => {
   return (
-    <div className="flex justify-center my-5  border-b-2">
+    <div className="flex justify-center my-5 border-b-2">
       <div className="flex flex-col items-center justify-center w-full">
         <h1 className=" text-neutral-600 text-center text-3xl font-bold pb-2">
           {title}
