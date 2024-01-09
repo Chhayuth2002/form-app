@@ -1,15 +1,15 @@
 import { Edit, Trash } from "lucide-react";
 
-export const TableCom = ({ data, onDelete, selectedItem, title, entity }) => {
+export const Table = ({ data, onDelete, selectedItem, title, entity }) => {
   return (
-    <div className="flex justify-center my-5 border-b-2">
+    <div className="flex justify-center my-5 border-b-2 bg-white shadow-md rounded-xl">
       <div className="flex flex-col items-center justify-center w-full">
-        <h1 className=" text-neutral-600 text-center text-3xl font-bold pb-2">
+        <h1 className=" text-neutral-600 text-center text-3xl font-bold py-5">
           {title}
         </h1>
-        <table className="  w-full bg-white shadow-md rounded-xl overflow-scroll mb-10">
+        <table className="w-full overflow-scroll">
           <thead>
-            <tr className="bg-blue-gray-100 text-gray-700">
+            <tr className="bg-blue-gray-100 text-gray-700 border-t">
               <th className="py-3 px-4 text-left">Id </th>
               <th className="py-3 px-4 text-left">Khmer</th>
               <th className="py-3 px-4 text-left">Latin</th>
@@ -43,9 +43,9 @@ export const TableCom = ({ data, onDelete, selectedItem, title, entity }) => {
                 ))}
               </>
             ) : (
-              <tr className="border border-b text-center text-5xl">
+              <tr className="border border-b text-center text-3xl">
                 <td colSpan="5" className="py-4">
-                  No data
+                  No {entity} data
                 </td>
               </tr>
             )}

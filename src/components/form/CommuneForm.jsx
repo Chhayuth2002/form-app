@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
-import { Button } from "./Button";
-import { Dropdown, TextIinput } from "./Input";
+import { useEffect, useState } from "react";
+import { Button } from "../Button";
+import { Dropdown, TextIinput } from "../Input";
 
 export const CommuneForm = ({
   onSave,
@@ -20,6 +20,7 @@ export const CommuneForm = ({
     latin: "",
     khmer: "",
     district_id: "",
+    province_id: "",
   });
   const [provinces, setProvince] = useState([]);
   const [districts, setDistrict] = useState([]);
@@ -27,6 +28,8 @@ export const CommuneForm = ({
     province_id: "",
     district_id: "",
   });
+
+  const [isDisable, setIsDisable] = useState(false);
 
   const handleFormChange = (e) => {
     const name = e.target.name;
@@ -37,7 +40,6 @@ export const CommuneForm = ({
 
     if (name === "province_id") {
       setSelectedItem({ ...selectedItem, province_id: value });
-      updateDropdown;
     }
   };
 
@@ -46,11 +48,17 @@ export const CommuneForm = ({
       latin: !form.latin ? "Latin name is required" : "",
       khmer: !form.khmer ? "Khmer name is required" : "",
       district_id: !form.district_id ? "District is required" : "",
+      province_id: !form.province_id ? "Province is required" : "",
     };
 
     setError(checkError);
 
-    if (!checkError.khmer && !checkError.latin && !checkError.district_id) {
+    if (
+      !checkError.khmer &&
+      !checkError.latin &&
+      !checkError.district_id &&
+      !checkError.province_id
+    ) {
       if (form.id) {
         onEdit("communes", form);
         setValue({});
@@ -70,27 +78,26 @@ export const CommuneForm = ({
     setValue({});
   };
 
-  const updateDropdown = useMemo(() => {
+  useEffect(() => {
     setProvince(provincesData);
+  }, [provincesData]);
+
+  useEffect(() => {
     setDistrict(
       districtData.filter((dis) => dis.province_id === selectedItem.province_id)
     );
-  }, [districtData, selectedItem, provincesData]);
+  }, [selectedItem, districtData]);
 
   useEffect(() => {
-    setProvince(provincesData);
-    if (value.id) {
-      setDistrict(
-        districtData.filter((dis) => dis.province_id === value.province_id)
-      );
-      setForm(value);
-      setValue({});
-    }
-  }, [provincesData, districtData, value, setValue]);
+    setForm(value);
+    setDistrict(
+      districtData.filter((dis) => dis.province_id === value.province_id)
+    );
+  }, [districtData, value]);
 
   return (
-    <div className="flex items-center justify-center border-b-2 ">
-      <div className="flex flex-col mt-5 ">
+    <div className="flex items-center justify-center ">
+      <div className="flex flex-col mt-5  bg-white rounded-lg shadow-md p-4">
         <h1 className=" text-neutral-600 text-center text-3xl font-bold pb-2">
           Commune Form
         </h1>
@@ -133,7 +140,7 @@ export const CommuneForm = ({
           />
         </div>
         <div className="mb-2">
-          <Button className="mr-2" onClick={handleClick}>
+          <Button className="mr-2" isDisable={isDisable} onClick={handleClick}>
             {form.id ? "Update" : "Save"}
           </Button>
           <Button onClick={onClear}>Clear</Button>

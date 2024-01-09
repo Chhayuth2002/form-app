@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { Button } from "./Button";
-import { Dropdown, TextIinput } from "./Input";
+import { Button } from "../Button";
+import { Dropdown, TextIinput } from "../Input";
 
 export const VillageForm = ({
   onSave,
@@ -43,12 +43,10 @@ export const VillageForm = ({
     setError({ ...error, [name]: "" });
 
     if (name === "province_id") {
-      updateDropdown;
       setSelectedItem({ ...selectItem, province_id: value });
     }
     if (name === "district_id") {
       setSelectedItem({ ...selectItem, district_id: value });
-      updateDropdown;
     }
   };
 
@@ -63,7 +61,13 @@ export const VillageForm = ({
 
     setError(checkError);
 
-    if (!checkError.khmer && !checkError.latin && !checkError.commune_id) {
+    if (
+      !checkError.khmer &&
+      !checkError.latin &&
+      !checkError.commune_id &&
+      !checkError.district_id &&
+      !checkError.province_id
+    ) {
       if (form.id) {
         onEdit("villages", form);
         setValue({});
@@ -89,18 +93,32 @@ export const VillageForm = ({
     setValue({});
   };
 
-  const updateDropdown = useMemo(() => {
+  // const updateDropdown = useMemo(() => {
+  //   setProvince(provincesData);
+  //   setDistrict(
+  //     districtsData.filter((dis) => dis.province_id === selectItem.province_id)
+  //   );
+  //   setCommune(
+  //     communesData.filter((com) => com.district_id === selectItem.district_id)
+  //   );
+  // }, [provincesData, districtsData, communesData, selectItem]);
+
+  useEffect(() => {
     setProvince(provincesData);
+  }, [provincesData]);
+
+  useEffect(() => {
     setDistrict(
       districtsData.filter((dis) => dis.province_id === selectItem.province_id)
     );
     setCommune(
       communesData.filter((com) => com.district_id === selectItem.district_id)
     );
-  }, [provincesData, districtsData, communesData, selectItem]);
+  }, [selectItem, districtsData, communesData]);
 
   useEffect(() => {
-    setProvince(provincesData);
+    setForm(value);
+
     if (value.id) {
       setDistrict(
         districtsData.filter((dis) => dis.province_id === value.province_id)
@@ -109,15 +127,32 @@ export const VillageForm = ({
       setCommune(
         communesData.filter((com) => com.district_id === value.district_id)
       );
-
-      setForm(value);
-      setValue({});
     }
-  }, [provincesData, districtsData, communesData, setValue, value]);
+  }, [value, communesData, districtsData]);
+
+  // useEffect(() => {
+  //   let filterDistrict;
+  //   let filterCommune;
+  //   if (value.id) {
+  //     filterDistrict = districtsData.filter(
+  //       (dis) => dis.province_id === value.province_id
+  //     );
+
+  //     filterCommune = communesData.filter(
+  //       (com) => com.district_id === value.district_id
+  //     );
+
+  //     setForm(value);
+  //   }
+
+  //   setProvince(provincesData);
+  //   setDistrict(filterDistrict);
+  //   setCommune(filterCommune);
+  // }, [provincesData, districtsData, communesData, setValue, value]);
 
   return (
-    <div className="flex items-center justify-center border-b-2 ">
-      <div className="flex flex-col mt-5 ">
+    <div className="flex items-center justify-center">
+      <div className="flex flex-col mt-5 bg-white rounded-lg shadow-md p-4 ">
         <h1 className=" text-neutral-600 text-center text-3xl font-bold pb-2">
           Village Form
         </h1>
@@ -147,6 +182,7 @@ export const VillageForm = ({
             value={form.province_id}
             onChange={handleFormChange}
             placeHolder="Choose a province"
+            error={error.province_id}
           />
           <Dropdown
             label="Districts"
@@ -155,6 +191,7 @@ export const VillageForm = ({
             value={form.district_id}
             onChange={handleFormChange}
             placeHolder="Choose a district"
+            error={error.district_id}
           />
           <Dropdown
             label="communes"

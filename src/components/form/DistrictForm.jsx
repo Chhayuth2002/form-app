@@ -1,13 +1,22 @@
 import { useEffect, useState } from "react";
-import { Button } from "./Button";
-import { TextIinput } from "./Input";
+import { Button } from "../Button";
+import { Dropdown, TextIinput } from "../Input";
 
-export const ProvinceForm = ({ onSave, onEdit, value = {}, setValue }) => {
+export const DistrictForm = ({
+  provincesData,
+  onSave,
+  value,
+  setValue,
+  onEdit,
+}) => {
   const [form, setForm] = useState({
     latin: value?.latin || "",
     khmer: value?.khmer || "",
+    province_id: value?.province_id || "",
   });
-  const [error, setError] = useState({ latin: "", khmer: "" });
+  const [error, setError] = useState({ latin: "", khmer: "", province_id: "" });
+  const [isDisable, setIsDisable] = useState(false);
+  const [provinces, setProvince] = useState([]);
 
   const handleFormChange = (e) => {
     const name = e.target.name;
@@ -19,38 +28,44 @@ export const ProvinceForm = ({ onSave, onEdit, value = {}, setValue }) => {
 
   const handleClick = () => {
     const checkError = {
+      province_id: !form.province_id ? "Province is required" : "",
       latin: !form.latin ? "Latin name is required" : "",
       khmer: !form.khmer ? "Khmer name is required" : "",
     };
 
     setError(checkError);
 
-    if (!checkError.latin && !checkError.khmer) {
+    if (!checkError.khmer && !checkError.latin && !checkError.province_id) {
       if (value.id) {
-        onEdit("provinces", form);
+        onEdit("districts", form);
         setValue({});
       } else {
-        onSave("provinces", form);
+        onSave("districts", form);
       }
-
-      setForm({ latin: "", khmer: "" });
+      setForm({
+        latin: "",
+        khmer: "",
+        province_id: form.province_id,
+      });
     }
   };
 
   const onClear = () => {
-    setForm({ latin: "", khmer: "" });
+    setForm({ latin: "", khmer: "", province_id: "" });
     setValue({});
   };
 
   useEffect(() => {
+    setIsDisable(provinces.length ? false : true);
+    setProvince(provincesData);
     setForm(value);
-  }, [value]);
+  }, [provinces, provincesData, value]);
 
   return (
-    <div className="flex  items-center justify-center  border-b-2">
-      <div className="flex flex-col mt-5">
+    <div className="flex border-b-2 ">
+      <div className="flex flex-col mt-5 bg-white rounded-lg shadow-md p-4">
         <h1 className=" text-neutral-600 text-center text-3xl font-bold mb-2">
-          Province Form
+          District Form
         </h1>
         <div className="py-2 flex items-center justify-center">
           <div className="flex flex-row gap-2">
@@ -71,8 +86,17 @@ export const ProvinceForm = ({ onSave, onEdit, value = {}, setValue }) => {
           </div>
         </div>
         <div className="mb-2">
-          <Button className="mr-2" onClick={handleClick}>
-            {!value.id ? "Save" : "Update"}
+          <Dropdown
+            label="Province"
+            data={provinces}
+            error={error.province_id}
+            name="province_id"
+            onChange={handleFormChange}
+            value={form.province_id}
+            placeHolder="Choose a province"
+          />
+          <Button className="mr-2" isDisable={isDisable} onClick={handleClick}>
+            {value.id ? "Update" : "Save"}
           </Button>
           <Button onClick={onClear}>Clear</Button>
         </div>
